@@ -7,21 +7,21 @@
 #define uS_TO_S_FACTOR 1000000 //Umrechnungsfaktor von Mikrosekunden in Sekunden
 
 //WiFi Einstellungen
-const char *ssid = "REPLACE_WITH_YOUR_SSID";
-const char *password = "REPLACE_WITH_YOUR_PASSWORD";
+const char *ssid = "OnLine";
+const char *password = "Br8#Pojg56";
 
 //Mail Einstellungen
-#define emailSenderAccount "EXAMPLE_EMAIL@gmail.com"
-#define emailSenderPassword "YOUR_EXAMPLE_EMAIL_PASSWORD"
-#define emailRecipient "YOUR_EMAIL_RECIPIENT@EXAMPLE.com"
+#define emailSenderAccount "mailbot.pilot@gmail.com"
+#define emailSenderPassword "Ale8and6r"
+#define emailRecipient "alexander.pilot@gmx.de"
 #define smtpServer "smtp.gmail.com"
 #define smtpServerPort 465
 
 //Pins für Peripherie
 #define PIN_SOILSENS 11
 #define PIN_PUMP 12
-#define PIN_ECHO 13
-#define PIN_TRIGGER 14
+#define PIN_ECHO 5
+#define PIN_TRIGGER 2
 
 //Deepsleep sichere Speicherung von Variablen
 RTC_DATA_ATTR int bootCount = 0;
@@ -68,10 +68,10 @@ void print_wakeup_reason()
         Serial.println("Wakeup caused by external signal using RTC_CNTL");
         break;
     case 3:
-        Serial.println("Wakeup caused by timer");
+        Serial.println("Wakeup caused by xx");
         break;
     case 4:
-        Serial.println("Wakeup caused by touchpad");
+        Serial.println("Wakeup caused by timer");
         break;
     case 5:
         Serial.println("Wakeup caused by ULP program");
@@ -182,8 +182,8 @@ void setup()
     esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR); //deep-sleep Zeit in Mikrosekunden
     Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " seconds");
 
-    //Initialisiere GPIO Pins
     //Bodenfeuchtigkeitssensor
+    pinMode(PIN_SOILSENS, INPUT);
 
     //Ultraschallsensor
     pinMode(PIN_TRIGGER, OUTPUT); // Sets the trigPin as an Output
@@ -194,6 +194,7 @@ void setup()
     digitalWrite(PIN_PUMP, false); //Pumpe ausschalten
 
     //Batteriemonitoring
+    //TODO: Testzwecke fester Batteriezustand
     battery_status = 50;
     if (battery_status <= battery_status_thd) //Bewässerungsanalge nicht nutzbar
     {
@@ -214,20 +215,18 @@ void setup()
 
         //Berechnung Wasserstand
         water_ammount = duration * 0.034 / 2;
+        water_ammount = 50; //TODO: Testzwecke fester Wasserstand
         Serial.print("Wasserstand: ");
         Serial.println(water_ammount);
-        //TODO: Testzwecke fester Wasserstand
-        water_ammount = 50;
         if (water_ammount >= water_ammount_thd)
         {
             //Wasserstand iO --> Bewässerungsanlage kann genutzt werden
 
             //Messe Bodenfeuchtigkeit
             soil_hum = analogRead(PIN_SOILSENS);
+            soil_hum = 50; //TODO: Testzwecke feste Bodenfeuchtigkeit
             Serial.print("Bodenfeuchtigkeit: ");
             Serial.println(soil_hum);
-            //TODO: Testzwecke feste Bodenfeuchtigkeit
-            soil_hum = 50;
             if (soil_hum <= soil_hum_thd)
             {
                 //Boden zu trocken, daher muss Pumpe aktiviert werden
